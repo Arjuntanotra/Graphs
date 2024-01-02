@@ -1,0 +1,49 @@
+#include <unordered_map>
+#include <list>
+bool isCycle_by_DFS(int compnent_Start , int parent,  unordered_map<int , bool>&visit,
+        unordered_map<int , list<int>>&adj_list
+){
+    visit[compnent_Start] = 1;
+
+    for(auto i: adj_list[compnent_Start]){
+         if(!visit[i]){
+             bool recursion_cycle = isCycle_by_DFS(i, compnent_Start, visit, adj_list);
+             if(recursion_cycle){
+                 return true;
+             }
+         }
+
+         else if(i != parent && visit[i] == 1){
+             return true;
+         }
+    }
+
+}
+
+string cycleDetection (vector<vector<int>>& edges, int n, int m)
+{
+    // Write your code here.
+    unordered_map<int , list<int>> adj_list;
+    unordered_map<int , bool>visit;
+    for(int i =0 ; i<edges.size() ; i++){
+        // 2 VERTEX FOR A SINGLE EDGES 
+        int first_vertex = edges[i][0];
+        int second_vertex = edges[i][1];
+
+        adj_list[first_vertex].push_back(second_vertex);
+        adj_list[second_vertex].push_back(first_vertex);
+    }
+
+    for(int i =0 ; i<n; i++){
+       if(!visit[i]){
+           bool ans = isCycle_by_DFS(i , -1, visit , adj_list);
+
+           if(ans){
+               return "Yes";
+           }
+       }
+    }
+     
+     return "No";
+
+}
