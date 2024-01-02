@@ -1,0 +1,69 @@
+#include <unordered_map>
+#include <list>
+#include <vector>
+#include <queue>
+bool check_cycle(int node , unordered_map<int , list<int>>adj_list, 
+                    unordered_map<int , bool>&visited){
+            unordered_map<int, int>parent;
+            parent[node] = -1;
+            visited[node] = 1;
+            queue<int>store;
+            store.push(node);
+
+            while(!store.empty()){
+                int front_node = store.front();
+                store.pop();
+
+                for(auto i: adj_list[front_node]){
+                    if(!visited[i]){
+                        visited[i]  = 1;
+                        store.push(i);
+                        parent[i] = front_node;
+                    }
+
+                    else if(visited[i]==1 && parent[front_node] != i){
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+
+        }
+
+string cycleDetection (vector<vector<int>>& edges, int n, int m)
+{
+    // Write your code here.
+
+    unordered_map<int , list<int>>adj_list;
+// HERE THE POINT NOTE THAT WE ARE NOT GETTING THE RESULT 
+// WHILE USING THE VISITED WITH THE HELP OF THE VECTOR<INT>
+    unordered_map<int , bool>visited;
+
+//PREPARE THE ADJLIST FOR EACH NODE 
+    for(int i =0 ; i<m ; i++){
+        int u = edges[i][0];
+        int v = edges[i][1];
+
+        adj_list[u].push_back(v);
+        adj_list[v].push_back(u);
+    }
+
+
+
+// THEN WE TARVERSE ALL THE NODE SO THAT NO COMPONENT LEFT 
+    for(int i =0 ; i<n ; i++){
+        if(!visited[i]){
+            bool ans = check_cycle(i , adj_list , visited );
+
+            if(ans == true){
+                return "Yes";
+            }
+        }
+    }
+
+
+    return "No";
+
+
+}
