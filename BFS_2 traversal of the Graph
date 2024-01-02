@@ -1,0 +1,50 @@
+#include <bits/stdc++.h> 
+
+void make_adj(    unordered_map<int , set<int> >&adj_list ,
+            vector<pair<int, int>> edges ){
+                for(int i =0 ; i<edges.size() ; i++){
+                    int u = edges[i].first;
+                    int v = edges[i].second;
+
+
+                    adj_list[u].insert(v);
+                    adj_list[v].insert(u);
+                }
+            }
+void bfs(unordered_map<int , set<int> >&adj_list,
+         unordered_map<int , bool >&visit  , vector<int>&ans , int node){
+             queue<int>q;
+             q.push(node);
+             visit[node] = 1;
+
+             while(!q.empty()){
+                 int front_node = q.front();
+                 q.pop();
+                 ans.push_back(front_node);
+
+
+                 for(auto i :adj_list[front_node]){
+                     if(!visit[i]){
+                         q.push(i);
+                         visit[i] = 1;
+                     }
+                 }
+             }
+         }
+
+vector<int> BFS(int vertex, vector<pair<int, int>> edges)
+{
+    // Write your code here
+    unordered_map<int , set<int> >adj_list;
+    unordered_map<int , bool >visit;
+    vector<int>ans;
+    make_adj(adj_list, edges);
+
+    for(int i =0 ; i<vertex ; i++){
+        if(!visit[i]){
+          bfs(adj_list , visit ,ans, i);
+        }
+    }
+
+    return ans;
+}
