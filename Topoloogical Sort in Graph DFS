@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+
+void solve(int node , stack<int>&ans , vector<bool>&visited , 
+                unordered_map<int , list<int>>&adj){
+// as enter the solve for node then mark visited true 
+                    visited[node] = 1;
+
+
+// and go for the child node(adjcant) until the last node
+// which dont have any unvisited adjcant node 
+                    for(auto i : adj[node]){
+                        if(!visited[i]){
+                            solve(i , ans, visited, adj);
+                        }
+                    }
+
+// at last when all nodes for a particular is done then put in stack 
+                    ans.push(node);
+                }
+
+
+
+
+vector<int> topologicalSort(vector<vector<int>> &edges, int v, int e)  {
+//preparing the adjlist from the edges 
+    unordered_map<int , list<int>>adj_list;
+    for(int i=0 ; i<e ; i++){
+        int u = edges[i][0];
+        int v = edges[i][1];
+
+        adj_list[u].push_back(v);
+    }
+
+
+
+// below visited and stack which store the temp result 
+// and final result which take input from the stack
+// so the stack have the element in reverse order so 
+// last in and first out so with its property we have acutal 
+// answer in final_Ans vector
+//HERE WE MAKE VECTOR VISIT DUE TO TIME LIMIT EXCEEDED 
+    vector<bool>visited(v);
+    stack<int>temp_ans;
+    vector<int>final_ans;
+
+    for(int i =0 ; i<v ; i++){
+        if(!visited[i]){
+            solve(i , temp_ans , visited , adj_list);
+        }
+    }
+
+
+
+// traverse the stack until it empty and put element in vector
+    while(!temp_ans.empty()){
+        final_ans.push_back(temp_ans.top());
+        temp_ans.pop();
+    }
+
+    return final_ans;
+}
