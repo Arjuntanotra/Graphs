@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+// kAHN'S ALGO -- USIGN THE BFS TRAVERSAL 
+//ALGO-- WE JUST HERE SAVE ALL THE INDEGREE FOR EACH NODE 
+// AND WHEN THE INDEGREE OF THE NODE IS 0 THEN WE PUT IS IN QUEUE
+// AND THEN STORE IN ANSNWER
+// THEN ADD THE ADJCANET NODE IF THE IN DEGREE OF THEM IS 0
+// ALSO WHEN YOU POP NODE FROM QUEUE MAKE ITS ADJCANET NODE INDEGREE DECREMENT 
+
+
+vector<int> topologicalSort(vector<vector<int>> &edges, int v, int e)  {
+    unordered_map<int , list<int>>adj;
+    for(int i =0 ; i<e ; i++){
+        int u = edges[i][0];
+        int v = edges[i][1];
+
+
+        adj[u].push_back(v);
+    }
+
+// STORE THE INDEGREE OF EACH NODE 
+    vector<int>inDegree(v);
+    for (auto i : adj){
+        for(auto j : i.second){
+            inDegree[j]++;
+        }
+    }
+
+
+// PUT THE ELEMENT TO QUEUE WHICH HAVE THE 0 DEGREE
+    queue<int>q;
+    for(int i =0 ; i<v; i++){
+        if(inDegree[i] == 0){
+            q.push(i);
+        }
+    }
+
+
+
+// NOW STORE THE ANSWER IN VECTOR 
+    vector<int>ans;
+    while(!q.empty()){
+        int front_node = q.front();
+        q.pop();
+        ans.push_back(front_node);
+
+        for(auto i : adj[front_node]){
+            inDegree[i]--;
+            if(inDegree[i] == 0){
+                q.push(i);
+            }
+        }
+    }
+
+
+    return ans;
+
+
+}
