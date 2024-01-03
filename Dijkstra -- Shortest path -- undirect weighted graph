@@ -1,0 +1,72 @@
+#include <bits/stdc++.h> 
+vector<int> dijkstra(vector<vector<int>> &vec, int vertices, int edges, int source) {
+//HERE ADJACENT LIST PREPARE WITH WEIGHT OF EDGE ALSO NON DIRECTED 
+    unordered_map<int , list<pair<int , int>>>adj;
+    for(int i =0; i<edges ; i++){
+        int u = vec[i][0];
+        int v = vec[i][1];
+        int w = vec[i][2];
+
+        adj[u].push_back(make_pair(v , w));
+        adj[v].push_back(make_pair(u , w));
+    }
+
+
+// NOW CREATE A DISTANCE ARRAY WITH ALL NODE DISTANCE FROM SOURCE IS INFINTE
+    vector<int>distance(vertices);
+    for(int i  = 0 ; i<vertices ; i++){
+        distance[i] = INT_MAX;
+    }
+
+
+// DISTANCE FROM SOURCE NODE TO SOURCE NODE = 0
+    distance[source] = 0;
+// MAKE A SET FROM WHERE WE ALWAYS TAKE A PAIR OUT IN ASCENDING ORDER OF THEIR WEIGHT EDGE 
+    set<pair<int , int>>store; // distance , node
+    store.insert(make_pair(0, source)); // FIRST INSERT THE SOURCE NODE WITH 0 DISTANCE 
+
+    while(!store.empty()){
+        // TAKE OUT THE PAIR 
+        auto top_node = *(store.begin());
+
+        // NODE AT SECOND PART AND DISTANCE AT FIRST 
+        int node = top_node.second;
+        int node_distance = top_node.first;
+
+
+        // NOW REMOVE THAT PAIR FROM THE SET 
+        store.erase(store.begin());
+
+        // NOW TRAVERSE ALL THE ADJACENT NODE OF TOP_NODE AND CHECK THE DISTANCE TO MAINTAIN MINIMUM 
+        for(auto i: adj[node]){
+            // i.second = weight in adjacent list 
+            // i.first =  node name in adjacent list 
+
+
+            // now present node distance with adjacent node distance is if less than its present distance 
+            // then make change to the distance of that node --- i.first (adjacent list )
+            if(node_distance + i.second < distance[i.first]){
+                
+                // first remove any other entry is present in the set 
+                auto result = store.find(make_pair(distance[i.first] , i.first));
+
+                if(result != store.end()){
+                    store.erase(result);
+                }
+
+
+                // now new distance for i.first = present node distance + adjacent node move distance
+                distance[i.first] = node_distance + i.second;
+
+                // and also store the entry of new distance and the adjacent node 
+                store.insert(make_pair(distance[i.first] , i.first));
+            }
+        }
+    }
+
+
+// at last return the distance array 
+    return distance;
+
+}
+     
