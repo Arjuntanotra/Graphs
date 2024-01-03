@@ -1,0 +1,152 @@
+#include <iostream>
+#include <unordered_map>
+#include <list>
+#include <vector>
+#include <stack>
+#include <limits.h>
+using namespace std;
+
+class graph
+{
+public:
+    unordered_map<int, list<pair<int, int>>> adj_list;
+
+    void insert_edge(int u, int v, int weight)
+    {
+        pair<int, int> temp = make_pair(v, weight);
+
+        adj_list[u].push_back(temp);
+    }
+
+    void print_graph()
+    {
+
+        for (auto i : adj_list)
+        {
+            cout << i.first << "-->";
+            for (auto j : i.second)
+            {
+                cout << "[" << j.first << "," << j.second << "] ";
+            }
+            cout << endl;
+        }
+    }
+
+
+// dfs function to store the topological sort in the stack 
+    void dfs_topological_Sort(int node, unordered_map<int, bool> &visited,
+                              stack<int> &store)
+    {
+
+        visited[node] = true;
+
+        for (auto i : adj_list[node])
+        {
+            if (!visited[i.first])
+            {
+                dfs_topological_Sort(i.first, visited, store);
+            }
+        }
+
+// after we finish all the neighbour nodes of ith node then we put it in stack --- as adjcanet node is done then move back 
+        store.push(node);
+    }
+
+
+
+
+    void getShorted_path_direct_acyclic(int source, vector<int> &dist, stack<int> &topo)
+    {
+
+        // distance from source node to source node is 0 ;
+        dist[source] = 0;
+
+        // until the topological stack is empty 
+        while (!topo.empty())
+        {
+
+            // take the element from teh top -- if it is infinity then means it is not traversal from the source node 
+            // which are previous node form the soucse node 
+            int top_Element = topo.top();
+            topo.pop();
+
+
+            // if the distance is not the infinity then we enter the if statement 
+            if (dist[top_Element] != INT_MAX)
+            {
+
+                // now check for all its adjacent node of the top_element of the stack 
+                for (auto i : adj_list[top_Element])
+                {
+                    // i.second -- edge weight
+                    // i.first = v node from the u(top_element);
+                    if (dist[top_Element] + i.second < dist[i.first])
+                    {
+                        // if the new distance is less than the preious distance then update --- previous distance may be infinity or any number
+                        dist[i.first] = dist[top_Element] + i.second;
+                    }
+                }
+            }
+        }
+    }
+};
+
+
+// printing array function 
+void print_array(vector<int> ans)
+{
+
+    for (int i = 0; i < ans.size(); i++)
+    {
+        cout << ans[i] << " ";
+    }
+
+    cout << endl;
+}
+int main()
+{
+
+    // FIRST CREATE THE GRAPH
+    graph g;
+    g.insert_edge(0, 1, 5);
+    g.insert_edge(0, 2, 3);
+    g.insert_edge(1, 2, 2);
+    g.insert_edge(1, 3, 6);
+    g.insert_edge(2, 3, 7);
+    g.insert_edge(2, 4, 4);
+    g.insert_edge(2, 5, 2);
+    g.insert_edge(3, 4, -1);
+    g.insert_edge(4, 5, -2);
+
+    // PRINT THE ADJCAENT NODE WITH ITS WIEIGHT ALSO
+    g.print_graph();
+    int n = 6; // TOTAL NUMBER OF NODES IN THE GRAPH
+
+    unordered_map<int, bool> visited;
+    stack<int> store;
+
+    // DFS CALL FOR THE TOPOLOGICAL SORT IN THE STACK (NODES); -- SO WE KNOW THE WHICH NODE IS FIRST VISIT
+    for (int i = 0; i < 6; i++)
+    {
+        if (!visited[i])
+        {
+            g.dfs_topological_Sort(i, visited, store);
+        }
+    }
+
+    // DISTANCE ARRAY WHERE WE ASSIGN THE INITAL DISTANCE TO EACH NODE IS INFINITY
+    vector<int> distance(n);
+    int src = 1; // source node for the distance
+    for (int i = 0; i < n; i++)
+    {
+        distance[i] = INT_MAX;
+    }
+
+    // CALL THE FUNCTION WHERE WE STORE THE SHORTEST DISTANCE FROM SOURCE NODE TO EACH NODE OF GRAPH
+    g.getShorted_path_direct_acyclic(src, distance, store);
+    // PRINING THE DISTANCE ARRAY ;
+
+    cout << "Prinint the ans array of distance :: ";
+    print_array(distance);
+    return 0;
+}
