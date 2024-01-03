@@ -1,0 +1,72 @@
+#include <unordered_map>
+#include <list>
+#include <queue>
+
+// ALGO -- BY BFS WE JUST SAVE THE PARENT OF THE EACH NODE 
+// NOW AFTER TRAVERSE BACK FROM THE DESTINATION TO SOUCE WITH THE 
+// HELP OF PARENT ARRAY WHERE WE HAVE PARENT FOR EACH NODE 
+
+
+vector<int> shortestPath( vector<pair<int,int>> edges , int n , int m, int s , int t){
+	
+
+	// MAKE THE ADJACENT LIST 
+	unordered_map<int , list<int> > adj;
+
+	for(int i =0 ; i<m ; i++){
+		int u = edges[i].first;
+		int v = edges[i].second;
+
+		adj[u].push_back(v);
+		adj[v].push_back(u);
+	}
+
+
+	// PARENT AND VISITED MAP 
+	unordered_map<int , bool>visited;
+	unordered_map<int , int>parent;
+
+
+	// FIRST START FROM THE STARTING NODE OF PATH 
+	// AND MARK PARENT OF START TO -1
+	queue<int>q;
+	q.push(s);
+	parent[s] = -1;
+	visited[s] = 1;
+
+	// UNTIL THE QUEUE IS EMPTY TRAVERSE THE LOOP 
+	while(!q.empty()){
+		int front_node = q.front();
+		q.pop();
+
+		for(auto i : adj[front_node]){
+			if(!visited[i]){
+				// MARK THE PARENT FOR EACH NODE 
+				parent[i] = front_node;
+				visited[i] = 1;
+				q.push(i);
+			}
+		}
+	}
+
+
+
+// IN ANSWER START FORM THE LAST NODE PUSH TO ANS 
+	vector<int>ans;
+	ans.push_back(t);
+	int currentnode = t;
+
+	while(currentnode != s){
+		// NOW CHANGE THE CURRENT NODE TO ITS PARENT 
+		currentnode = parent[currentnode];
+		ans.push_back(currentnode);
+	}
+
+
+// REVERSE THE ARRAY AS WE TRAVERSE THE PARENT FROM DESTINATION
+// TO SOURCE 
+	reverse(ans.begin() , ans.end());
+	return ans;
+	
+
+}
