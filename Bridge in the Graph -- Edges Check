@@ -1,0 +1,92 @@
+#include <unordered_map>
+#include <vector>
+#include <list>
+
+
+// ALGORITHM
+//FIRST GO AND TRAVERSE ALL THE NEIGHBOUR FOR A GIVEN NODE WITH
+//DFS CALL AND WHEN YOU FOUND NEIGHBOUR ALREDY VISITED TRUE THAT
+// MEANS THERE IS ANOTHER PATH TO COME THAT AND -- CYCLE--SHORT DISTANCE
+// THEN UPDATE THE LOW OF NODE WITH THE DISCVOERY OF THE NEIGHBOUR --IF VISITED NEIGHBOUR FOUND
+// IF NEIGHBOUR -- OF NODE == PARENT -- THEN CONTINUE 
+// IF NEIGBOUR IS NODE VISITED THEN CALL DFS == AFTER RETURENING 
+// MAY BE THERE IS CYCLE ANOTHER PATH AND LOW OF NIBHOUR IS UPDATE 
+// THEN UPDATE THE LOW NODE ALSO WITH THE NEIBHOUR --LOW 
+// AND AFTER ALL DFS CALL CHECK IF THE LOW OF NEIBHOUR IS GREATER 
+// THAN DISCVOERY OF CURRENT NODE THEN == BRIDGE EDGE STORE 
+
+
+
+void dfs_call(int node , int parent, int timer , unordered_map<int , list<int>>&adj , vector<int>&discovery,
+                vector<int>&low_time , unordered_map<int , bool > &visited , vector<vector<int>>&ans){
+
+// UPDATE THE DISCOVERY AND LOW TIME WITH TIMER 
+                    visited[node] = true;
+                    discovery[node] = low_time[node] = timer++;
+
+
+// NEIGBOUR TRAVERSE FOR CURRENT NODE
+                    for (auto neigbour : adj[node]){
+
+                        // IF PARENT IS NEIGBOUR CONTINUE AS NON-DIRECTED 
+                        if(parent == neigbour){
+                            continue;
+                        }
+// IF NEIGBOUR IS NOT VISITED THEN CALL DFS 
+                        if(!visited[neigbour]){
+                            dfs_call(neigbour, node, timer, adj, discovery, low_time, visited, ans);
+
+// AFTER RETURING MAY BE THERE IS CYCLE SO UPATE THE LOW TIME OF CURRENT NODE
+                            low_time[node] = min(low_time[node] , low_time[neigbour]);
+
+// AFTER THAT IF LOW-TIME OF NEIBOUR IS GREATER THAN DICVOERY OF CURRENT NODE 
+//== THAT MEANS THERE IS NO CYCLE AND SO IT IS BRIDGE EDGE STORE IT 
+                            if(low_time[neigbour] > discovery[node]){
+                                vector<int>temp;
+                                temp.push_back(node);
+                                temp.push_back(neigbour);
+                                ans.push_back(temp);
+
+                            }
+                        }
+
+// IF ALREDY VISITED AND ALSO NOT THE PARENT THEN UPDATE THE LOW
+// OF NODE WITH THE DISVOERY TIME OF VISITED NEIGHOUR NODE 
+                        else{
+                            low_time[node] = min(low_time[node] , discovery[neigbour]);
+                        }
+                    }
+                }
+vector<vector<int>> findBridges(vector<vector<int>> &edges, int v, int e) {
+
+    vector<vector<int>>ans;
+    unordered_map<int , list<int>>adj;
+    for(int i=0 ; i<e ; i++){
+        int u = edges[i][0];
+        int v = edges[i][1];
+
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    vector<int>discovery(v);
+    vector<int>low_time(v);
+    int parent = -1;
+    unordered_map<int , bool>visited;
+
+    for(int i=0 ; i<v ; i++){
+        discovery[i] = -1;
+        low_time[i] = -1;
+    }
+
+
+    for(int i= 0 ; i<v; i++){
+        if(!visited[i]){
+            dfs_call(i , parent , 0 , adj , discovery , low_time , visited , ans);
+        }
+    }
+
+
+    return ans;
+
+}
