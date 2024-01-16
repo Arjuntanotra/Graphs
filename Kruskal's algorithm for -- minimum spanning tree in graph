@@ -1,0 +1,92 @@
+
+//THIS FUNCTION SORT THE EDGES IN ASCENDING ORDER 
+bool cmp(vector<int>&a , vector<int>&b){
+	return a[2] < b[2];
+}
+
+// HERE WE SET RANK AND PARENT FOR EACH NODE
+// PARENT OF EACH NODE IS ITSELF = NODE[I] = I;
+// AND INITIAL RANK OF EACH NODE IS 0
+void set_rank_parent(vector<int>&rank , vector<int>&parent , int n ){
+
+	for(int i = 0 ; i<n ; i++){
+		parent[i] = i;
+		rank[i] = 0;
+	}
+}
+
+
+// HOW TO FIND THE PARENT OF EACH NODE --RECURSIVE;
+// ALSO AT LAST SET THE PARENT OF RECURSIVE ORDER TO DIRECT PARENT
+// FOR EACH NODE 
+int find_the_parent_node(vector<int>&parent, int node){
+	// WHEN PARENT[NODE] = NODE -- LAST AND FINAL PARENT OF NODE
+	if(parent[node] == node){
+		return node;
+	}
+
+
+// AND ALSO DIRECT PARENT[NODE] TO ITS LAST PARENT(ORIGINAL) --
+// IT MAKE EASY TO SOLVE - DECREASE COMPLIXITY 
+	return parent[node] = find_the_parent_node(parent, parent[node]);
+}
+
+
+// HOW TO MAKE UNION OF TWO NODES 
+void union_of_two_node(int u , int v , vector<int>&parent , vector<int>&rank){
+	// FIRST FIND BOTH NODES PARENT 
+	int u_parent = find_the_parent_node(parent, u);
+	int v_parent = find_the_parent_node(parent, v);
+
+
+// CHECK RANK OF BOTH PARENT NODES AND UPDATE 
+	if(rank[u_parent] < rank[v_parent]){
+		parent[u_parent] = v_parent;
+	}
+
+	else if(rank[v_parent] < rank[u_parent]){
+		parent[v_parent] = u_parent;
+	}
+
+
+// WHEN BOTH NODE PARENTS HAVE SAME RANK THEN 
+// MAKE ANY PARENT AND INCRASE THE RANK OF PARENT NODE 
+	else{
+		parent[u_parent] = v_parent;
+		rank[v_parent]++;
+	}
+}
+
+int kruskalMST(int n, vector<vector<int>> &edges)
+{
+
+	// INITIALIZE THE RANK AND PARENT AND SET THERE VALUE 
+	vector<int>rank(n);
+	vector<int>parent(n);
+	set_rank_parent(rank, parent, n);
+
+// WIEGHT SUM = 0 , AND SORT THE EDGES RESPECT TO THERE WIEIGHT
+// SO WHILE SOLVING WE CHOOSE THE LOW WEIGHT == MINIMUM SPANNING TREE 8
+	int weight_sum = 0;
+	sort(edges.begin() , edges.end() , cmp);
+
+
+// NOW TRAVERSE EACH EDGES 
+	for(int i =0 ; i<edges.size() ; i++){
+		int u_parent = find_the_parent_node(parent, edges[i][0]);
+		int v_parent = find_the_parent_node(parent, edges[i][1]);
+		int w = edges[i][2];
+
+// FOR EACH EDGE IF THE PARENT _NODE IS DIFFERNT THEN MERGE THEM
+// ELSE IF BOTH NODES PARENT ARE SAME THAT MEANS THEY ARE SAME GRAPH
+// AND ALSO AS WE HAVE SORTED EDGES WIEGHT SO WE MUST HAVE LOWER WEIGHT EDGE
+
+		if(u_parent != v_parent){
+			weight_sum += w;
+			union_of_two_node(u_parent, v_parent, parent, rank);
+		}
+	}
+
+	return weight_sum;
+
+}
