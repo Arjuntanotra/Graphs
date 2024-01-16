@@ -1,0 +1,112 @@
+
+#include <bits/stdc++.h>
+using namespace std;
+
+// algorithm 
+// IT IS SAME ALGO AS THE BRIDGE IN THE GRAPH JUST LITTLE CHANGES 
+/*
+HERE WE IF FOUND ANY CYCLE THEN WE UPDATE THE LOW_TIME WITH THE CYCLE NODE DISVOERY TIME WHICH IS ALREDY VISITED PREICOUSLY AND ALSO NOT THE PARENT NODE 
+AND AFTER COMING BACK FROM THE NEIBHOUR NODE ALWAYS UPDATE THE LOW OF CURRENT NODE WITH NEIGHOUR NODE BECAUSE MAY BE IT FOUND A CYCLE AND HAVE LESS LOWER TIME THAN CURRENT NODE 
+THAT MEANS CURRENT NODE ALSO HAVE DIFFERNT PATH TO COME TO IT SO UPDATE THE LOW OF CURRENT NODE WITH LOW OF NEIGBOUR NODE 
+// WHEN FOUND LOWTIME OF NIGBHOUR IS GREATER THAN EQUAL TO DISCOUVERY TIME OF CURRENT NODE AND ALSO NOT PARENT EQUAL TO 1 THEN IT IS
+ARETICULTION POINT SO STORE IT 
+*/
+
+void dfs_call(int node, int parent, int timer, unordered_map<int, list<int>> &adj,
+              vector<int> &discovery, vector<int> &low_time, unordered_map<int, bool> &visited,
+              unordered_map<int, bool> &ans)
+{
+    visited[node] = 1;
+    discovery[node] = low_time[node] = timer++;
+    int child = 0;
+
+    for (auto nbr : adj[node])
+    {
+        if (nbr == parent)
+        {
+            continue;
+        }
+
+        if (!visited[nbr])
+        {
+            dfs_call(nbr, node, timer, adj, discovery, low_time, visited, ans);
+
+            low_time[node] = min(low_time[node], low_time[nbr]);
+
+            if (low_time[nbr] >= discovery[node] && parent != -1)
+            {
+                ans[node] = 1;
+            }
+
+            child++;
+        }
+
+        else
+        {
+            low_time[node] = min(low_time[node], discovery[nbr]);
+        }
+    }
+
+
+// this is for the root node if it have more than 1 child and also it have parent == -1 then it articultion point always 
+
+    if (child >= 1 && parent == -1)
+    {
+        ans[node] = 1;
+    }
+}
+
+int main()
+{
+    vector<pair<int, int>> edges;
+    int e = 5;
+    int v = 5;
+    edges.push_back(make_pair(0, 3));
+    edges.push_back(make_pair(3, 4));
+    edges.push_back(make_pair(0, 4));
+    edges.push_back(make_pair(0, 1));
+    edges.push_back(make_pair(1, 2));
+
+    unordered_map<int, list<int>> adj_list;
+
+    for (int i = 0; i < e; i++)
+    {
+        int u = edges[i].first;
+        int v = edges[i].second;
+
+        adj_list[u].push_back(v);
+        adj_list[v].push_back(u);
+    }
+
+    vector<int> discovery(v);
+    vector<int> low_time(v);
+    int parent = -1;
+    unordered_map<int, bool> visited;
+
+    for (int i = 0; i < v; i++)
+    {
+        discovery[i] = -1;
+        low_time[i] = -1;
+    }
+
+    unordered_map<int, bool> ans;
+
+    for (int i = 0; i < v; i++)
+    {
+        if (!visited[i])
+        {
+            dfs_call(i, parent, 0, adj_list, discovery, low_time, visited, ans);
+        }
+    }
+
+    cout << "Printing the articultion point in the graph with above edges ::: ";
+    for (int i = 0; i < v; i++)
+    {
+        if (ans[i] == 1)
+        {
+            cout << i << " ";
+        }
+    }
+
+    return 0;
+}
