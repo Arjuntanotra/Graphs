@@ -1,0 +1,91 @@
+#include <unordered_map>
+#include <list>
+#include <stack>
+
+//ALGORITHM FOR KOSARAJU PROBLEM == COUNT STRONLGY CONNECTED COMPONENT (THAT FROM EACH NODE YOU CAN TRAVEL TO EACH NODE THAT LIKE CYCLE )
+// SO WE HAVE TO COUNT THE TOTAL NUMBER OF THAT SUCH COMPONENT 
+/*
+HERE WE JUST TRAVERL ALL THE NODE FOR I(0-V) == FOR EACH COMPOENT IT COME BACK AND WE JUST MAKE COUNT++ FOR SUCH COMPOENT 
+PROBLEM IS THAT IT MAY BE THERE IS CYCLE AND ALSO IT CREATE PROBLEM 
+
+== SOLUTION==
+
+WE JUST STORE THE TOPOLOGICAL SORT OF GRAPH == SO WE HAVE ELEMENT BY THEIR TIME OF ENDING 
+AND WE START FORM THE LAST ELEMENT BUT BEFORE THAT WE JUST HAVE TO TRANSPOSE THE DIRECTION OF EACH EDGE SO WE MUST HAVE PATH FOR NODES 
+AND THEN WE JUST TRAVERSE FOR ALL ELEMENT IN THE STACK (TOPOLOGICAL SORTED ELEMENT )
+AND WE JUST MAKE THE COUNT ++ FOR THE COMPONENT COUNT 
+
+*/
+
+
+
+// FOR TOPOLOGICAL SORT WE STORE IT IN STACK 
+void dfs_topological(int node , unordered_map<int , list<int>>&adj, 
+			unordered_map<int , bool>&visited, stack<int>&store){
+				visited[node] = 1;
+
+				for(auto nbr : adj[node]){
+					if(!visited[nbr]){
+						dfs_topological(nbr, adj, visited, store);
+					}
+				}
+
+				store.push(node);
+			}
+
+// JUST SIMPLE TRAVERSE TO ALL NODE WHERE WE CAN TRAVERSE 
+void dfs_Kosaraju(int node , unordered_map<int, bool>&visited, 
+					unordered_map<int , list<int>>&transpose_adj){
+						visited[node] = 1;
+
+						for(auto nbr : transpose_adj[node]){
+							if(!visited[nbr]){
+								dfs_Kosaraju(nbr, visited, transpose_adj);
+							}
+						}
+					}
+
+
+int stronglyConnectedComponents(int v, vector<vector<int>> &edges)
+{
+	unordered_map<int, list<int>>adj;
+
+	for(int i =0 ; i<edges.size() ; i++){
+		int u = edges[i][0];
+		int v = edges[i][1];
+
+		adj[u].push_back(v);
+	}
+
+	stack<int>st;
+	unordered_map<int , bool>visited;
+	for(int i=0; i<v ; i++){
+		if(!visited[i]){
+			dfs_topological(i , adj , visited , st);
+		}
+	}
+
+
+// MAKE THE TRANSPOSE AJDACENT LIST 
+	unordered_map<int , list<int>>transpose_adj;
+	for(int i = 0; i<v; i++){
+       visited[i] = 0;
+	   for(auto nbr : adj[i]){
+		   transpose_adj[nbr].push_back(i);
+	   }
+	}
+
+	int count = 0;
+	while(!st.empty()){
+		int i = st.top();
+		st.pop();
+
+		if(!visited[i]){
+		dfs_Kosaraju(i , visited , transpose_adj);
+		count++;
+		}
+
+	}
+
+	return count;
+}
